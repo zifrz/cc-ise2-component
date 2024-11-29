@@ -1,0 +1,47 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - PORT=3000
+    networks:
+      - app-network
+
+  backend:
+    build: ./backend
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    environment:
+      - PORT=4000
+      - POSTGRES_USER=userapp
+      - POSTGRES_PASSWORD=userpassword
+      - POSTGRES_DB=userdb
+      - POSTGRES_HOST=db
+    networks:
+      - app-network
+
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql 
+    environment:
+      - POSTGRES_USER=userapp
+      - POSTGRES_PASSWORD=userpassword
+      - POSTGRES_DB=userdb
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
